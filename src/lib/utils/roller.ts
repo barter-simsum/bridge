@@ -135,6 +135,28 @@ export const transferPointRequest = async (
   return api.transferPoint(sig, from, _wallet.address, data);
 };
 
+export const detach = async (
+  api: RollerRPCAPI,
+  _wallet: any,
+  sponsor: Ship,
+  proxy: string,
+  nonce: number,
+  ship: Ship
+) => {
+  const from = {
+    ship: sponsor, //ship that is detaching the planet
+    proxy,
+  };
+
+  const data = {
+    ship, // ship to detach
+  };
+
+  const hash = await api.getUnsignedTx(nonce, from, 'detach', data);
+  const sSig = signTransactionHash(hash, _wallet.privateKey);
+  return api.detach(sSig, from, _wallet.address, data);
+};
+
 const proxyType = (proxy: Proxy) => {
   switch (proxy) {
     case 'manage':
@@ -171,7 +193,7 @@ const setProxy = async (
 export const registerProxyAddress = async (
   api: RollerRPCAPI,
   _wallet: any,
-  _point: Ship,
+  point: Ship,
   proxy: string,
   proxyAddressType: string,
   nonce: number,
